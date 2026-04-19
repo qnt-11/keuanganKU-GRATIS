@@ -1,22 +1,24 @@
 /**
- * SERVICE WORKER keuanganKU (VERSI FINAL ABSOLUT + IGNORE SEARCH BUGFIX)
- * Fitur: Cache Splitting, True Stale-While-Revalidate, Safe Offline Fallback, Background Lock, Anti-Bloat.
+ * SERVICE WORKER keuanganKU (FINAL ABSOLUT + NETWORK SECURITY BUGFIX)
+ * Fitur: Cache Splitting, True Stale-While-Revalidate, Safe Offline Fallback, Background Lock, Anti-Bloat, Anti-Crash.
  */
 
 // =========================================================
 // ⚠️ PENTING: GANTI ANGKA INI SETIAP ADA UPDATE DI INDEX.HTML
 // =========================================================
-const APP_VERSION = '1.01'; // Aku naikkan sedikit karena ada update SW
+const APP_VERSION = '1.02'; 
 
 // Pemisahan Brankas Memori
 const CACHE_STATIC = 'keuanganku-static-v' + APP_VERSION;
 const CACHE_DYNAMIC = 'keuanganku-dynamic-v' + APP_VERSION;
 
+// BRANKAS STATIS: (Hanya Font & Excel, tanpa Chart.js)
 const staticAssets = [
   'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
 ];
 
+// BRANKAS DINAMIS: File utama aplikasi
 const dynamicAssets = [
   './',
   './index.html',
@@ -25,7 +27,6 @@ const dynamicAssets = [
   './icon-512.png'
 ];
 
-// 1. INSTALASI & SKIP WAITING
 self.addEventListener('install', event => {
   self.skipWaiting(); 
   event.waitUntil(
@@ -36,45 +37,45 @@ self.addEventListener('install', event => {
   );
 });
 
-// 2. AKTIVASI & AUTO-CLEANUP
 self.addEventListener('activate', event => {
   self.clients.claim(); 
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
         keys.map(key => {
-          if (key !== CACHE_STATIC && key !== CACHE_DYNAMIC) {
-            console.log('[Service Worker] Menghapus Cache Lama:', key);
-            return caches.delete(key);
-          }
+          if (key !== CACHE_STATIC && key !== CACHE_DYNAMIC) return caches.delete(key);
         })
       );
     })
   );
 });
 
-// 3. SMART FETCHING & ROUTING
 self.addEventListener('fetch', event => {
   const requestUrl = new URL(event.request.url);
 
-  // A. JALUR EVAKUASI SW.JS (Tidak Boleh Masuk Cache)
+  // ========================================================
+  // A. FILTER KEAMANAN JARINGAN (ANTI-CRASH & BOM WAKTU)
+  // ========================================================
+  // 1. Jangan cache sw.js
   if (requestUrl.pathname.endsWith('sw.js')) return;
+  // 2. WAJIB: Abaikan semua request kecuali GET (Mencegah POST/PUT error)
+  if (event.request.method !== 'GET') return;
+  // 3. WAJIB: Abaikan URL alien dari ekstensi browser (Hanya proses HTTP/HTTPS)
+  if (!requestUrl.protocol.startsWith('http')) return;
 
-  // B. JALUR KHUSUS GOOGLE SHEETS
+  // B. JALUR KHUSUS GOOGLE SHEETS (Disiapkan jika nanti di-upgrade ke PRO)
   if (requestUrl.hostname === 'script.google.com') {
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // C. BRANKAS STATIS (Cache First untuk Library & Font)
+  // C. BRANKAS STATIS (Cache First untuk Library & Font Google)
   if (staticAssets.some(url => event.request.url.includes(url)) || requestUrl.hostname === 'fonts.gstatic.com') {
     event.respondWith(
-      // PENAMBAHAN IGNORE SEARCH PADA ASET STATIS
       caches.match(event.request, { ignoreSearch: true }).then(cachedResponse => {
         return cachedResponse || fetch(event.request).then(networkResponse => {
           if (networkResponse && (networkResponse.status === 200 || networkResponse.status === 0)) {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_STATIC).then(cache => cache.put(event.request, responseToCache));
+            caches.open(CACHE_STATIC).then(cache => cache.put(event.request, networkResponse.clone()));
           }
           return networkResponse;
         });
@@ -85,9 +86,7 @@ self.addEventListener('fetch', event => {
 
   // D. BRANKAS DINAMIS (True Stale-While-Revalidate)
   event.respondWith(
-    // PENAMBAHAN IGNORE SEARCH PADA FILE APLIKASI (Anti-Bloat & Kecepatan Instan)
     caches.match(event.request, { ignoreSearch: true }).then(cachedResponse => {
-      
       const networkFetch = fetch(event.request).then(networkResponse => {
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
@@ -109,7 +108,6 @@ self.addEventListener('fetch', event => {
         event.waitUntil(networkFetch); 
         return cachedResponse; 
       }
-
       return networkFetch; 
     })
   );
