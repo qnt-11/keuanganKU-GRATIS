@@ -165,11 +165,6 @@
         .editable { cursor: pointer; transition: 0.2s; flex: 1; min-width: 0; } 
         .mutasi-text { color: var(--blue); font-weight: 700; }
 
-        /* ================= PLOT LIST ================= */
-        #plot-list { overflow-y: auto; flex: 1; min-height: 0; padding-right: 5px; padding-bottom: 20px; }
-        #plot-list::-webkit-scrollbar { width: 3px; }
-        #plot-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
-
         /* ================= MODALS & POP-UPS ================= */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px);
@@ -179,23 +174,24 @@
         .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top:15px; }
         .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: 'Montserrat', sans-serif; font-size: 12px; text-transform: uppercase; transition: 0.2s;}
 
-        @keyframes borderGlow {
-            0% { border-color: var(--wa-green); box-shadow: 0 0 12px rgba(0, 168, 132, 0.5); }
-            33% { border-color: var(--danger); box-shadow: 0 0 12px rgba(255, 59, 48, 0.5); }
-            66% { border-color: var(--gold); box-shadow: 0 0 12px rgba(255, 215, 0, 0.5); }
-            100% { border-color: var(--blue); box-shadow: 0 0 12px rgba(0, 168, 255, 0.5); }
-        }
-        .animated-border { animation: borderGlow 10s infinite alternate ease-in-out; border-width: 2px !important; }
+        /* FULL SCREEN MODAL ABOUT */
+        .modal-full { width: 100% !important; height: 100% !important; max-width: none !important; border-radius: 0 !important; border: none !important; box-sizing: border-box; }
 
-        /* ANIMASI TOMBOL WHATSAPP KEDIP ABU-ABU KE HIJAU */
+        /* ANIMASI TOMBOL WHATSAPP KEDIP NEON */
         @keyframes blinkWhatsApp {
-            0% { border-color: #5a6a73; color: #5a6a73; box-shadow: none; }
-            50% { border-color: #25D366; color: #25D366; box-shadow: 0 0 12px rgba(37, 211, 102, 0.4); }
-            100% { border-color: #5a6a73; color: #5a6a73; box-shadow: none; }
+            0% { border-color: var(--wa-green); box-shadow: 0 0 5px var(--wa-green); }
+            50% { border-color: #25D366; box-shadow: 0 0 20px #25D366; }
+            100% { border-color: var(--wa-green); box-shadow: 0 0 5px var(--wa-green); }
         }
-        .btn-wa-blink {
-            animation: blinkWhatsApp 2s infinite ease-in-out;
+        .btn-wa-blink { animation: blinkWhatsApp 1.5s infinite ease-in-out; border: 2px solid var(--wa-green) !important; color: #25D366 !important; }
+
+        /* ANIMASI KEDIP HALUS DEVELOPER CARD */
+        @keyframes borderSmoothGlow {
+            0% { border-color: #334155; }
+            50% { border-color: #94a3b8; box-shadow: 0 0 15px rgba(148, 163, 184, 0.2); }
+            100% { border-color: #334155; }
         }
+        .dev-card-glow { animation: borderSmoothGlow 4s infinite ease-in-out; border: 1px solid #334155 !important; }
 
         .picker-box { background: var(--wa-card); padding: 20px; border-radius: 16px; width: 85%; max-width: 320px; border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,1); }
         .picker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -209,7 +205,7 @@
         .picker-months-grid { display: flex; flex-wrap: wrap; width: 100%; margin-top: 10px; }
         #cp-month-view .picker-item { width: 33.33%; margin-bottom: 5px; }
         .picker-item:hover { background: rgba(255,255,255,0.1); }
-        .picker-item.selected { font-weight: 700; color: #fff !important; }
+        .picker-item.selected { font-weight: 700; color: #fff !important; background: var(--border-color) !important; } 
 
         .creator-watermark { position: fixed; bottom: 8px; left: 12px; font-size: 11px; color: var(--text-muted); z-index: 9999; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.8); letter-spacing: 0.3px; }
         .creator-watermark .fam { font-size: 10px; font-weight: 500; }
@@ -357,55 +353,81 @@
 </div>
 
 <div id="about-modal" class="modal-overlay hidden">
-    <div class="modal-box animated-border" style="padding: 25px 20px; text-align: left; max-height: 85vh; overflow-y: auto;">
+    <div class="modal-box modal-full" style="padding: 0; text-align: left; background: #000000; overflow-y: auto; position: relative; display: flex; flex-direction: column;">
         
-        <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">keuanganKU</h2>
-            <small id="app-version-display" style="color: var(--text-muted); font-weight: 700; letter-spacing: 2px; font-size: 10px;">V E R S I  1.00  (GRATIS)</small>
-        </div>
-
-        <div style="font-size: 13px; line-height: 1.6; color: var(--text-light);">
-            <p style="margin-top: 0;"><strong>keuanganKU</strong> adalah aplikasi pencatatan keuangan harian yang dirancang simpel, ringan, dan 100% berjalan secara <em>offline</em> di perangkat Anda tanpa perlu koneksi internet.</p>
-            
-            <hr style="border: none; border-top: 1px solid var(--border-color); opacity: 0.5; margin: 15px 0;">
-
-            <p style="color: var(--gold); font-weight: 700; margin-bottom: 5px; font-size: 14px;">💎 UPGRADE KE VERSI PRO</p>
-            <p style="margin-top: 0;">Dapatkan kendali penuh atas finansial Anda dengan deretan fitur eksklusif tanpa batas:</p>
-            <ul style="padding-left: 18px; margin-top: 0; margin-bottom: 15px;">
-                <li><strong>Cloud Backup:</strong> Sinkronisasi data aman (Anti-Hilang).</li>
-                <li><strong>Anti-Overbudget:</strong> Pengingat cerdas batas anggaran.</li>
-                <li><strong>Grafik Visual:</strong> Analisis pengeluaran yang interaktif.</li>
-                <li><strong>Smart Search:</strong> Cari riwayat transaksi secepat kilat.</li>
-                <li><strong>Premium Theme:</strong> Request warna tampilan sesuai selera.</li>
-            </ul>
-
-            <a href="https://wa.me/6282226334999?text=Halo%20Ginanjar%2C%20saya%20pengguna%20aplikasi%20keuanganKU.%20Saya%20tertarik%20untuk%20upgrade%20ke%20versi%20PRO.%20Boleh%20minta%20info%20detail%20fitur%20dan%20cara%20berlangganannya%3F" target="_blank" style="display: block; text-decoration: none;">
-                <button class="modal-btn btn-wa-blink" style="width: 100%; background: transparent; padding: 12px; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; border: 2px solid #5a6a73;">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.015c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                            PESAN VERSI PRO DI SINI
-                        </button>
-                    </a>
-
-                    <hr style="border: none; border-top: 1px solid var(--border-color); opacity: 0.5; margin: 15px 0;">
-
-                    <p style="color: var(--danger); font-weight: 700; margin-bottom: 5px; font-size: 14px;">⚠️ PERINGATAN PENTING</p>
-                    <p style="margin-top: 0;">Karena versi gratis ini beroperasi murni <em>offline</em>, <strong>Anda wajib melakukan Backup ke Excel secara rutin</strong>. Jika perangkat Anda rusak tanpa adanya *backup*, data tidak dapat dipulihkan.</p>
-
-                    <div style="background: rgba(42, 57, 66, 0.4); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 25px; text-align: center;">
-                        <small style="color: var(--text-muted); display: block; margin-bottom: 6px; font-weight: 800; letter-spacing: 1px;">DIKEMBANGKAN OLEH:</small>
-                        <strong style="color: #ffffff; font-size: 18px; font-weight: 900; display: block; margin-bottom: 8px;">Ginanjar Wahyu RHP</strong>
-                        <div style="font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; font-weight: 600;">
-                            <span>✉️ n_dazmoe@yahoo.com</span>
-                            <span>🌐 github.com/qnt-11</span>
-                        </div>
-                    </div>
-                    
-                    <p style="text-align: center; color: var(--text-muted); font-size: 10px; margin-top: 25px;">Hak Cipta © 2026 - All Rights Reserved</p>
-                </div>
-                
-                <button class="modal-btn" style="width: 100%; background: transparent; color: #ff3b30; border: 1px solid var(--border-color); margin-top: 15px; padding: 14px; font-weight: 800; font-size: 13px;" onclick="closeAboutModal()">TUTUP</button>
+        <div style="padding: 40px 20px 20px; text-align: center; background: linear-gradient(180deg, rgba(0, 168, 255, 0.1) 0%, transparent 100%); flex-shrink: 0;">
+            <h2 style="margin: 0; font-size: 32px; font-weight: 900; letter-spacing: 2px; color: #fff; text-shadow: 0 0 10px rgba(0,168,255,0.5);">keuangan<span style="color: var(--blue);">KU</span></h2>
+            <div style="display: inline-block; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; margin-top: 10px;">
+                <small id="app-version-display" style="color: var(--text-light); font-weight: 800; letter-spacing: 3px; font-size: 11px;">VERSI 1.00 (BASIC)</small>
             </div>
         </div>
+
+        <div style="padding: 0 25px 120px; flex-grow: 1;">
+            <p style="text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 30px;">Aplikasi pencatat keuangan harian yang simpel, cepat, dan beroperasi 100% offline. Sangat cocok untuk mengontrol arus keuangan pribadi atau keluarga mu.</p>
+            
+            <div style="background: rgba(255, 215, 0, 0.03); border: 1px solid rgba(255, 215, 0, 0.2); border-radius: 16px; padding: 20px; margin-bottom: 25px;">
+                <h3 style="color: var(--gold); font-weight: 800; margin: 0 0 15px 0; font-size: 16px; display: flex; align-items: center; gap: 10px; letter-spacing: 1px;">
+                    ✨ UPGRADE KE VERSI PRO!
+                </h3>
+                <ul style="padding-left: 0; margin: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
+                    <li style="display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="color: var(--gold); font-size: 18px; line-height: 1;">•</span>
+                        <span><strong style="color: #fff;">Smart Cloud Sync:</strong> Simpan dan tarik data per bulan via Cloud (Google Sheets) dengan aman dan praktis.</span>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="color: var(--gold); font-size: 18px; line-height: 1;">•</span>
+                        <span><strong style="color: #fff;">Grafik Visual Detail:</strong> Analisis kemana uangmu mengalir lewat grafik interaktif berwarna-warni.</span>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="color: var(--gold); font-size: 18px; line-height: 1;">•</span>
+                        <span><strong style="color: #fff;">Pencarian Super Pintar:</strong> Lacak riwayat transaksi lintas bulan dan tahun secepat kilat.</span>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="color: var(--gold); font-size: 18px; line-height: 1;">•</span>
+                        <span><strong style="color: #fff;">Premium Custom Design:</strong> Jadikan aplikasi ini benar-benar eksklusif milikmu! Ganti nama aplikasi, ubah tema warna, hingga request tambahan fitur khusus sesuka hati.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 35px;">
+                <a href="https://wa.me/6282226334999?text=Bro%2C%20saya%20pengguna%20aplikasi%20keuanganKU%20(BASIC).%20Saya%20tertarik%20untuk%20upgrade%20ke%20versi%20PRO.%20Boleh%20minta%20info%20detail%20fitur%20dan%20cara%20berlangganannya%3F" target="_blank" style="text-decoration: none;">
+                    <button class="modal-btn btn-wa-blink" style="width: 100%; background: transparent; padding: 16px; font-weight: 900; font-size: 14px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; letter-spacing: 1px; box-sizing: border-box;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.015c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                        PESAN VERSI PRO DI SINI
+                    </button>
+                </a>
+                <p style="color: #64748b; font-size: 11px; margin-top: 10px; font-weight: 600;">(Klik untuk Upgrade ke PRO atau sekadar bertanya)</p>
+            </div>
+
+            <div style="background: rgba(255, 59, 48, 0.05); border-left: 4px solid var(--danger); padding: 15px; border-radius: 0 12px 12px 0; margin-bottom: 30px;">
+                <h4 style="color: var(--danger); font-weight: 900; margin: 0 0 8px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                    ⚠️ PERINGATAN PENTING!
+                </h4>
+                <p style="margin: 0; color: #f87171; font-size: 12px; line-height: 1.5;">Versi Basic ini beroperasi murni offline di memori HP. Anda <strong>wajib melakukan Backup ke Excel secara rutin</strong>. Jika perangkat Anda hilang atau rusak tanpa adanya file backup, maka data tidak dapat dipulihkan.</p>
+            </div>
+
+            <div style="margin-bottom: 35px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                <h4 style="color: #cbd5e1; font-weight: 800; margin: 0 0 8px 0; font-size: 14px; letter-spacing: 1px;">🔒 PRIVASI & KEAMANAN</h4>
+                <p style="margin: 0; color: #64748b; font-size: 12px; text-align: justify;">Data Anda 100% aman. Aplikasi ini hanya menyimpan data di memori lokal perangkat Anda. Kami tidak menggunakan server pihak ketiga mana pun untuk melacak atau menyimpan riwayat keuangan Anda.</p>
+            </div>
+
+            <div class="dev-card-glow" style="padding: 25px; border-radius: 20px; text-align: center; background: #0a0f12;">
+                <small style="color: #475569; display: block; margin-bottom: 10px; font-weight: 900; letter-spacing: 2px;">DEVELOPED BY</small>
+                <strong style="color: #fff; font-size: 18px; font-weight: 900; display: block; margin-bottom: 12px; letter-spacing: 1px;">Ginanjar Wahyu RHP</strong>
+                <div style="font-size: 12px; color: #64748b; display: flex; flex-direction: column; gap: 8px; font-weight: 700;">
+                    <span>✉️ n_dazmoe@yahoo.com</span>
+                    <span>🌐 github.com/qnt-11</span>
+                </div>
+            </div>
+            
+            <p style="text-align: center; color: #334155; font-size: 10px; margin-top: 40px; font-weight: 700; letter-spacing: 1px;">Hak Cipta © 2026 - All Rights Reserved</p>
+        </div>
+
+        <div style="position: sticky; bottom: 0; left: 0; width: 100%; padding: 15px 20px; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); border-top: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; z-index: 100;">
+            <button class="modal-btn" style="width: 100%; background: #fff; color: #000; padding: 16px; font-weight: 900; font-size: 14px; border-radius: 12px; box-shadow: 0 0 20px rgba(255,255,255,0.2); margin: 0; box-sizing: border-box;" onclick="closeAboutModal()">TUTUP</button>
+        </div>
+    </div>
+</div>
 
 <div id="mutation-modal" class="modal-overlay hidden">
     <div class="modal-box" style="border: 1px solid var(--blue); padding: 20px;">
@@ -448,13 +470,11 @@
 
 <input type="file" id="file-import" accept=".xlsx, .xls" class="hidden" onchange="importFromExcel(event)">
 
-<div class="creator-watermark">created by <span class="fam">fam</span><span class="barla">BARLA</span></div>
-
 <script>
     // =========================================================
     // 1. PENGATURAN AWAL & DATABASE 
     // =========================================================
-    const APP_VERSION = "1.00"; // UBAH ANGKA INI JIKA ADA UPDATE
+    const APP_VERSION = "1.00"; 
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(() => console.log("SW tidak ditemukan."));
@@ -818,7 +838,7 @@
 
     function terapkanVersi() {
         const elVersi = document.getElementById('app-version-display');
-        if (elVersi) elVersi.innerText = `V E R S I  ${APP_VERSION}  (GRATIS)`;
+        if (elVersi) elVersi.innerText = `VERSI 1.00 (BASIC)`;
     }
 
     window.addEventListener('DOMContentLoaded', () => { muatDatabase(); inisiasiKalenderAwal(); updatePlotList(); updateRekap(); jalankanJam(); terapkanVersi(); });
