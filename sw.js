@@ -6,7 +6,7 @@
 // =========================================================
 // ⚠️ PENTING: GANTI ANGKA INI SETIAP ADA UPDATE DI INDEX.HTML
 // =========================================================
-const APP_VERSION = '1.02'; 
+const APP_VERSION = '1.03'; 
 
 // Pemisahan Brankas Memori
 const CACHE_STATIC = 'keuanganku-static-v' + APP_VERSION;
