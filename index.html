@@ -9,10 +9,13 @@
     <meta name="theme-color" content="#000000">
     <link rel="apple-touch-icon" href="icon-192.png">
     
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
+        /* Anti-Silau Android */
+        * { -webkit-tap-highlight-color: transparent; }
+
         /* ================= VARIABLES & THEME ================= */
         :root {
             --wa-bg: #000000; 
@@ -35,6 +38,42 @@
             display: flex; flex-direction: column; overflow: hidden; 
         }
         .hidden { display: none !important; }
+
+        /* ================= WATERMARK HANTU LED MATRIX ================= */
+        .creator-watermark {
+            position: fixed; 
+            bottom: 15px; 
+            left: 15px; 
+            z-index: 9999; 
+            pointer-events: none; /* Tembus Klik 100% */
+            user-select: none;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+        .creator-watermark .created-by { 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 9px; 
+            color: rgba(100, 100, 100, 0.5); 
+            margin-bottom: -3px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .wm-text {
+            font-family: 'Audiowide', sans-serif;
+            white-space: nowrap;
+            /* Efek Bayangan Abu-abu dengan Scan Merah Redup */
+            background: linear-gradient(90deg, rgba(80,80,80,0.4) 40%, rgba(255,59,48,0.8) 50%, rgba(80,80,80,0.4) 60%);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: scanLED 3s linear infinite;
+        }
+        .creator-watermark .fam { font-size: 14px; }
+        .creator-watermark .barla { font-size: 20px; }
+        
+        @keyframes scanLED {
+            0% { background-position: 100% 50%; }
+            100% { background-position: -50% 50%; }
+        }
 
         /* ================= HEADER ================= */
         header {
@@ -207,12 +246,14 @@
         .picker-item:hover { background: rgba(255,255,255,0.1); }
         .picker-item.selected { font-weight: 700; color: #fff !important; background: var(--border-color) !important; } 
 
-        .creator-watermark { position: fixed; bottom: 8px; left: 12px; font-size: 11px; color: var(--text-muted); z-index: 9999; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.8); letter-spacing: 0.3px; }
-        .creator-watermark .fam { font-size: 10px; font-weight: 500; }
-        .creator-watermark .barla { font-size: 13px; font-weight: 700; color: var(--text-light); }
     </style>
 </head>
 <body>
+
+<div class="creator-watermark">
+    <div class="created-by">created by</div>
+    <div class="wm-text"><span class="fam">fam</span><span class="barla">BARLA</span></div>
+</div>
 
 <header>
     <div style="display: flex; flex-direction: column;">
@@ -280,6 +321,16 @@
         <div class="card">
             <h3 style="margin:0 0 15px 0; color:var(--danger); font-size:16px;">- Catat Pengeluaran</h3>
             <div class="form-group"><label>Tanggal</label><input type="text" id="out-date" readonly onclick="openPicker('out-date', 'date', 'var(--danger)')"></div>
+            
+            <div class="form-group">
+                <label>Ambil dari Plot</label>
+                <div class="custom-select-container">
+                    <div class="custom-select-trigger" id="out-plot-trigger" onclick="toggleCustomSelect('out-plot-opts', event)" style="color:var(--text-muted)">-- Tanpa Plot --</div>
+                    <div class="custom-select-options hidden" id="out-plot-opts"></div>
+                </div>
+                <input type="hidden" id="out-plot" value="">
+            </div>
+            
             <div class="form-group"><label>Keterangan</label><input type="text" id="out-desc" placeholder="Wifi, Makan, dll" autocomplete="off"></div>
             <div class="form-group">
                 <label>Sumber Dana</label>
@@ -292,14 +343,6 @@
                     </div>
                 </div>
                 <input type="hidden" id="out-wallet" value="Tunai">
-            </div>
-            <div class="form-group">
-                <label>Ambil dari Plot</label>
-                <div class="custom-select-container">
-                    <div class="custom-select-trigger" id="out-plot-trigger" onclick="toggleCustomSelect('out-plot-opts', event)" style="color:var(--text-muted)">-- Tanpa Plot --</div>
-                    <div class="custom-select-options hidden" id="out-plot-opts"></div>
-                </div>
-                <input type="hidden" id="out-plot" value="">
             </div>
             <div class="form-group"><label>Jumlah (Rp)</label><input type="text" inputmode="numeric" id="out-amount" placeholder="0"></div>
             <button class="btn-main btn-red" id="btn-save-out" onclick="saveData(event, 'expense')">Simpan Pengeluaran</button>
@@ -675,13 +718,20 @@
         document.getElementById('edit-btn-save').onclick = () => {
             const nomBaru = Math.abs(Number(document.getElementById('edit-amount').value.replace(/\./g, '')));
             if (isNaN(nomBaru) || nomBaru <= 0) return showPopup('alert', "Jumlah tidak valid!", 'red');
+            
+            // Backup penuh data asli sebelum direplace
             const nominalLama = data.amount; const dompetLama = data.wallet; const plotLama = data.plotId;
+            const tglLama = data.date; const descLamaAsli = data.desc; 
+
             data.amount = nomBaru; data.wallet = document.getElementById('edit-wallet').value;
             data.date = document.getElementById('edit-date').dataset.rawDate;
             data.desc = document.getElementById('edit-desc').value.trim();
             if (tipe === 'expense') data.plotId = document.getElementById('edit-plot-val').value;
+
+            // Batalkan semua perubahan jika saldo minus
             if (getSaldoDompet('Tunai') < 0 || getSaldoDompet('Bank') < 0 || getSaldoDompet('e-Wallet') < 0) {
-                data.amount = nominalLama; data.wallet = dompetLama; if (tipe === 'expense') data.plotId = plotLama;
+                data.amount = nominalLama; data.wallet = dompetLama; data.date = tglLama; data.desc = descLamaAsli;
+                if (tipe === 'expense') data.plotId = plotLama;
                 return showPopup('alert', "Batal: Saldo akan minus!", 'red');
             }
             simpanDatabase(); document.getElementById('edit-modal').classList.add('hidden'); updateRekap(); updatePlotList();
@@ -747,6 +797,15 @@
     function updateRekap() {
         const tglSortir = document.getElementById('rekap-date-picker').dataset.rawDate, elMasuk = document.getElementById('list-income'), elKeluar = document.getElementById('list-expense');
         const gabungan = [...AppState.db.income.map(i => ({...i, type:'income'})), ...AppState.db.expense.map(e => ({...e, type:'expense'})), ...AppState.db.mutations.map(m => ({...m, type:'mutations', desc:`Mutasi: ${m.from} ➔ ${m.to}`}))].filter(item => item.date === tglSortir);
+        
+        // Sorting berdasarkan ID (Timestamp) agar yang terbaru ada di atas
+        gabungan.sort((a, b) => {
+            if (a.id < b.id) return -1;
+            if (a.id > b.id) return 1;
+            return 0;
+        });
+        gabungan.reverse();
+
         let htmlMasuk = '', htmlKeluar = ''; let adaIn = false, adaOut = false;
         gabungan.forEach(item => {
             const isIn = item.type === 'income', isMut = item.type === 'mutations';
@@ -793,6 +852,10 @@
             });
         } else {
             let k = { 'Tunai': 0, 'Bank': 0, 'e-Wallet': 0 }; AppState.tempImport.forEach(r => { const tipe = String(r.Tipe).toUpperCase(), nom = bersihkanAngka(r.Jumlah); if (!isNaN(nom)) { const da = validasiDompet(r["Dompet Asal"] || r.Dompet); if (tipe === 'DEBIT') k[da] += nom; if (tipe === 'KREDIT') k[da] -= nom; } });
+            
+            // PENGOSONGAN DATA LAMA DI HP SEBELUM IMPOR RINGKAS (Mencegah Dobel)
+            AppState.db.income = []; AppState.db.expense = []; AppState.db.mutations = [];
+
             Object.keys(k).forEach(dom => { if (k[dom] > 0) AppState.db.income.push({ id: Utils.buatId(), date: Utils.tglHariIni(), desc: `Import Excel`, amount: k[dom], wallet: dom }); else if (k[dom] < 0) AppState.db.expense.push({ id: Utils.buatId(), date: Utils.tglHariIni(), desc: `Koreksi Excel`, amount: Math.abs(k[dom]), wallet: dom }); });
         }
         simpanDatabase(); AppState.tempImport = []; updateRekap(); updatePlotList(); showPopup('alert', "Diimpor!", 'green');
