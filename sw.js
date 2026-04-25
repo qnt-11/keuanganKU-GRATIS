@@ -1,29 +1,30 @@
 /**
  * SERVICE WORKER keuanganKU (ENTERPRISE SECURITY & CACHE LIMIT)
- * Versi 1.00
+ * Versi 1.01 (BASIC)
  */
 
-const APP_VERSION = '1.00'; 
+const APP_VERSION = '1.01'; 
 const CACHE_PREFIX = 'keuangan-ku-';
 const CACHE_STATIC = CACHE_PREFIX + 'static-v' + APP_VERSION;
 const CACHE_DYNAMIC = CACHE_PREFIX + 'dynamic-v' + APP_VERSION;
 
-// Aset Statis yang disesuaikan dengan keuanganKU
 const staticAssets = [
   './index.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png', // Tetap disertakan untuk standar PWA (jika ada di manifest)
+  './icon-512.png',
   'https://fonts.googleapis.com/css2?family=Audiowide&family=Montserrat:wght@400;500;600;700;800;900&display=swap',
+  'https://cdn.jsdelivr.net/npm/chart.js',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
 ];
 
-// Fungsi Pemotong Bom Waktu Memori
+// FIX BUG: Batch Delete agar tidak looping berlebihan (Ramah Baterai & CPU)
 const limitCacheSize = (name, size) => {
   caches.open(name).then(cache => {
     cache.keys().then(keys => {
       if (keys.length > size) {
-        cache.delete(keys[0]).then(() => limitCacheSize(name, size));
+        const keysToDelete = keys.slice(0, keys.length - size);
+        Promise.all(keysToDelete.map(key => cache.delete(key)));
       }
     });
   });
@@ -31,8 +32,23 @@ const limitCacheSize = (name, size) => {
 
 self.addEventListener('install', event => {
   self.skipWaiting(); 
+  // FIX BUG: Ubah All-or-Nothing menjadi Individual Caching agar PWA kebal jika CDN down
   event.waitUntil(
-    caches.open(CACHE_STATIC).then(cache => cache.addAll(staticAssets))
+    caches.open(CACHE_STATIC).then(cache => {
+      return Promise.all(
+        staticAssets.map(asset => {
+          return fetch(asset)
+            .then(response => {
+              if (response.ok) {
+                return cache.put(asset, response);
+              }
+            })
+            .catch(error => {
+              console.warn('Lewati cache sementara (offline/CDN down):', asset);
+            });
+        })
+      );
+    })
   );
 });
 
@@ -42,7 +58,6 @@ self.addEventListener('activate', event => {
     caches.keys().then(keys => {
       return Promise.all(
         keys.map(key => {
-          // Hanya hapus cache milik keuanganKU (Aman jika di-host di domain yang sama dengan app lain)
           if (key.startsWith(CACHE_PREFIX) && key !== CACHE_STATIC && key !== CACHE_DYNAMIC) {
             return caches.delete(key);
           }
@@ -52,14 +67,16 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Telepati dengan HTML (Untuk fitur hapus data jika diperlukan ke depannya)
 self.addEventListener('message', event => {
   if (event.data && event.data.action === 'CLEAR_CACHE') {
-    caches.keys().then(keys => {
-      keys.forEach(key => {
-        if (key.startsWith(CACHE_PREFIX)) caches.delete(key);
-      });
-    });
+    event.waitUntil(
+      caches.keys().then(keys => {
+        return Promise.all(
+          keys.filter(key => key.startsWith(CACHE_PREFIX))
+              .map(key => caches.delete(key))
+        );
+      })
+    );
   }
 });
 
@@ -71,38 +88,72 @@ self.addEventListener('fetch', event => {
   if (!reqUrl.protocol.startsWith('http')) return;
   if (reqUrl.pathname.endsWith('sw.js')) return;
 
-  // JALUR KHUSUS GOOGLE SHEETS
-  if (reqUrl.hostname === 'script.google.com') {
+  // FIX BUG: Bypass Google Sheets mencakup script.googleusercontent.com
+  if (reqUrl.hostname.includes('script.google')) {
     event.respondWith(fetch(req));
     return;
   }
 
-  // Normalisasi Duplikasi Hantu ./ dan ./index.html
-  if (reqUrl.pathname === '/' || reqUrl.pathname === '/index.html') {
-    req = new Request('./index.html');
-  }
+  // FIX BUG: Normalisasi request ke root / menjadi index.html (Aman untuk GitHub Pages)
+  const isIndex = reqUrl.pathname.endsWith('/') || reqUrl.pathname.endsWith('/index.html');
+  const cacheKey = isIndex ? new Request('./index.html') : req;
 
   event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then(cachedResponse => {
-      const networkFetch = fetch(req).then(networkResponse => {
-        // Anti Wifi Warkop (Captive Portal) & Anti File Rusak
-        if (!networkResponse || !networkResponse.ok || networkResponse.redirected || networkResponse.type === 'opaque') {
-          return networkResponse; 
+    caches.match(cacheKey, { ignoreSearch: true }).then(cachedResponse => {
+      
+      // FIX BUG: Pencocokan string presisi (menggunakan pathname utuh) untuk file statis
+      const isLocalStatic = staticAssets.some(asset => {
+        if (asset.startsWith('http')) return false;
+        const assetUrl = new URL(asset, self.location.origin);
+        return reqUrl.pathname === assetUrl.pathname;
+      });
+      const isCDNStatic = staticAssets.some(asset => asset.startsWith('http') && reqUrl.href === asset);
+      
+      // FIX BUG: Masukkan font .woff2 dari gstatic ke dalam cache statis
+      const isGstaticFont = reqUrl.hostname === 'fonts.gstatic.com';
+      
+      const isStatic = isIndex || isLocalStatic || isCDNStatic || isGstaticFont;
+
+      if (isStatic) {
+        // STRATEGI CACHE-FIRST
+        return cachedResponse || fetch(req).then(networkResponse => {
+          if (networkResponse && networkResponse.ok) {
+            caches.open(CACHE_STATIC).then(cache => cache.put(cacheKey, networkResponse.clone()));
+          }
+          return networkResponse;
+        }).catch(() => {
+          if (req.headers.get('accept') && req.headers.get('accept').includes('text/html')) {
+            return caches.match('./index.html');
+          }
+          // FIX BUG: Mengembalikan error resmi agar SW tidak crash saat offline merequest gambar/api
+          return Response.error();
+        });
+      } else {
+        // STRATEGI STALE-WHILE-REVALIDATE
+        const fetchPromise = fetch(req).then(networkResponse => {
+          if (networkResponse && networkResponse.ok && !networkResponse.redirected && networkResponse.type !== 'opaque') {
+            caches.open(CACHE_DYNAMIC).then(cache => {
+              cache.put(req, networkResponse.clone());
+              limitCacheSize(CACHE_DYNAMIC, 60); 
+            });
+          }
+          return networkResponse;
+        }).catch(() => {
+          if (req.headers.get('accept') && req.headers.get('accept').includes('text/html')) {
+            return caches.match('./index.html');
+          }
+          // FIX BUG: Mengembalikan error resmi agar SW tidak crash
+          return Response.error(); 
+        });
+
+        // FIX BUG: Tampilkan cache jika ada, JALANKAN update di latar belakang TANPA dibunuh browser
+        if (cachedResponse) {
+          event.waitUntil(fetchPromise);
+          return cachedResponse;
         }
         
-        caches.open(CACHE_DYNAMIC).then(cache => {
-          cache.put(req, networkResponse.clone());
-          limitCacheSize(CACHE_DYNAMIC, 60); // Maksimal 60 file di memori dinamis
-        });
-        return networkResponse.clone();
-      }).catch(() => {
-        // Fallback White Screen of Death (Buka index.html jika tidak ada internet dan file belum di-cache)
-        if (req.headers.get('accept') && req.headers.get('accept').includes('text/html')) {
-          return caches.match('./index.html');
-        }
-      });
-
-      return cachedResponse || networkFetch; 
+        return fetchPromise;
+      }
     })
   );
 });
