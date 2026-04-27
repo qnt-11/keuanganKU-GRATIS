@@ -1,9 +1,9 @@
 /**
  * SERVICE WORKER keuanganKU (ENTERPRISE SECURITY & CACHE LIMIT)
- * Versi 1.01 (BASIC)
+ * Versi 1.06 (BASIC)
  */
 
-const APP_VERSION = '1.05'; 
+const APP_VERSION = '1.06'; 
 const CACHE_PREFIX = 'keuangan-ku-';
 const CACHE_STATIC = CACHE_PREFIX + 'static-v' + APP_VERSION;
 const CACHE_DYNAMIC = CACHE_PREFIX + 'dynamic-v' + APP_VERSION;
