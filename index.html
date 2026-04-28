@@ -37,6 +37,11 @@
             margin: 0; background-color: var(--wa-bg); color: var(--text-light);
             display: flex; flex-direction: column; overflow: hidden; 
         }
+        
+        /* BUG FIX #6: Memastikan Modal Open Mengunci Scroll Latar Belakang */
+        body.modal-open { overflow: hidden; pointer-events: none; }
+        body.modal-open .modal-overlay { pointer-events: auto; }
+        
         .hidden { display: none !important; }
 
         /* ================= WATERMARK HANTU LED MATRIX ================= */
@@ -122,7 +127,6 @@
         .tab-kredit.active { color: var(--danger); border-bottom: 3px solid var(--danger); }
         .tab-plot.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
         .tab-rekap.active { color: var(--blue); border-bottom: 3px solid var(--blue); }
-
         /* ================= LAYOUT ================= */
         .page { display: flex; flex-direction: column; flex: 1; min-height: 0; }
         .content { flex: 1; overflow: hidden; padding: 15px; display: flex; flex-direction: column; padding-bottom: 0; }
@@ -298,8 +302,8 @@
     <div id="pemasukan" class="page">
         <div class="card">
             <h3 style="margin:0 0 15px 0; color:var(--wa-green); font-size:16px;">+ Catat Pemasukan</h3>
-            <div class="form-group"><label>Tanggal</label><input type="text" id="in-date" readonly onclick="openPicker('in-date', 'date', 'var(--wa-green)')"></div>
-            <div class="form-group"><label>Keterangan</label><input type="text" id="in-desc" placeholder="Gaji, Jualan, dll" autocomplete="off"></div>
+            <div class="form-group"><label for="in-date">Tanggal</label><input type="text" id="in-date" readonly onclick="openPicker('in-date', 'date', 'var(--wa-green)')"></div>
+            <div class="form-group"><label for="in-desc">Keterangan</label><input type="text" id="in-desc" placeholder="Gaji, Jualan, dll" autocomplete="off"></div>
             <div class="form-group">
                 <label>Sumber Dana</label>
                 <div class="custom-select-container">
@@ -312,7 +316,7 @@
                 </div>
                 <input type="hidden" id="in-wallet" value="Tunai">
             </div>
-            <div class="form-group"><label>Jumlah (Rp)</label><input type="text" inputmode="numeric" id="in-amount" placeholder="0"></div>
+            <div class="form-group"><label for="in-amount">Jumlah (Rp)</label><input type="text" inputmode="numeric" id="in-amount" placeholder="0"></div>
             <button class="btn-main btn-green" id="btn-save-in" onclick="saveData(event, 'income')">Simpan Pemasukan</button>
         </div>
     </div>
@@ -320,7 +324,7 @@
     <div id="pengeluaran" class="page hidden">
         <div class="card">
             <h3 style="margin:0 0 15px 0; color:var(--danger); font-size:16px;">- Catat Pengeluaran</h3>
-            <div class="form-group"><label>Tanggal</label><input type="text" id="out-date" readonly onclick="openPicker('out-date', 'date', 'var(--danger)')"></div>
+            <div class="form-group"><label for="out-date">Tanggal</label><input type="text" id="out-date" readonly onclick="openPicker('out-date', 'date', 'var(--danger)')"></div>
             
             <div class="form-group">
                 <label>Ambil dari Plot</label>
@@ -331,7 +335,7 @@
                 <input type="hidden" id="out-plot" value="">
             </div>
             
-            <div class="form-group"><label>Keterangan</label><input type="text" id="out-desc" placeholder="Wifi, Makan, dll" autocomplete="off"></div>
+            <div class="form-group"><label for="out-desc">Keterangan</label><input type="text" id="out-desc" placeholder="Wifi, Makan, dll" autocomplete="off"></div>
             <div class="form-group">
                 <label>Sumber Dana</label>
                 <div class="custom-select-container">
@@ -344,7 +348,7 @@
                 </div>
                 <input type="hidden" id="out-wallet" value="Tunai">
             </div>
-            <div class="form-group"><label>Jumlah (Rp)</label><input type="text" inputmode="numeric" id="out-amount" placeholder="0"></div>
+            <div class="form-group"><label for="out-amount">Jumlah (Rp)</label><input type="text" inputmode="numeric" id="out-amount" placeholder="0"></div>
             <button class="btn-main btn-red" id="btn-save-out" onclick="saveData(event, 'expense')">Simpan Pengeluaran</button>
         </div>
     </div>
@@ -352,8 +356,8 @@
     <div id="plot" class="page hidden">
         <div class="card">
             <h3 style="margin:0 0 15px 0; color:var(--gold); font-size:16px;">Alokasi Anggaran</h3>
-            <div class="form-group"><label>Nama Anggaran</label><input type="text" id="plot-name" placeholder="Makan, Listrik, dll" autocomplete="off"></div>
-            <div class="form-group"><label>Target Per Bulan (Rp)</label><input type="text" inputmode="numeric" id="plot-amount" placeholder="0"></div>
+            <div class="form-group"><label for="plot-name">Nama Anggaran</label><input type="text" id="plot-name" placeholder="Makan, Listrik, dll" autocomplete="off"></div>
+            <div class="form-group"><label for="plot-amount">Target Per Bulan (Rp)</label><input type="text" inputmode="numeric" id="plot-amount" placeholder="0"></div>
             <button class="btn-main btn-gold" onclick="savePlot(event)">Tambah Plot</button>
         </div>
         <div class="card card-flex">
@@ -394,7 +398,6 @@
         </div>
     </div>
 </div>
-
 <div id="about-modal" class="modal-overlay hidden">
     <div class="modal-box modal-full" style="padding: 0; text-align: left; background: #000000; overflow-y: auto; position: relative; display: flex; flex-direction: column;">
         
@@ -496,7 +499,7 @@
 </div>
 
 <div id="import-modal" class="modal-overlay hidden">
-    <div class="modal-box"><h3>Metode Impor</h3><p style="font-size:12px; color:var(--text-muted); margin-bottom: 15px;">Pilih cara memproses data Excel lama.</p><div style="display:flex; flex-direction:column; gap:8px;"><button class="modal-btn btn-green" style="color:#000;" onclick="confirmImportRingkas()">Import Ringkas (Hemat Memori)</button><button class="modal-btn" style="background:#2a3942; color:#fff;" onclick="executeImport('semua')">Import Semua (Muat Detail)</button><button class="modal-btn cancel" onclick="document.getElementById('import-modal').classList.add('hidden'); document.getElementById('file-import').value = '';">Batal</button></div></div>
+    <div class="modal-box"><h3>Metode Impor</h3><p style="font-size:12px; color:var(--text-muted); margin-bottom: 15px;">Pilih cara memproses data Excel lama.</p><div style="display:flex; flex-direction:column; gap:8px;"><button class="modal-btn btn-green" style="color:#000;" onclick="confirmImportRingkas()">Import Ringkas (Hemat Memori)</button><button class="modal-btn" style="background:#2a3942; color:#fff;" onclick="executeImport('semua')">Import Semua (Muat Detail)</button><button class="modal-btn cancel" onclick="document.getElementById('import-modal').classList.add('hidden'); document.body.classList.remove('modal-open'); document.getElementById('file-import').value = '';">Batal</button></div></div>
 </div>
 
 <div id="edit-modal" class="modal-overlay hidden">
@@ -507,7 +510,7 @@
         <div class="form-group" style="text-align:left;" id="edit-wallet-container"><label>Sumber Dana</label><div class="custom-select-container"><div class="custom-select-trigger" id="edit-wallet-trigger" onclick="toggleCustomSelect('edit-wallet-opts', event)">Tunai</div><div class="custom-select-options hidden" id="edit-wallet-opts"><div class="custom-option" onclick="setCustomVal('edit-wallet','edit-wallet-trigger','edit-wallet-opts','Tunai')">Tunai</div><div class="custom-option" onclick="setCustomVal('edit-wallet','edit-wallet-trigger','edit-wallet-opts','Bank')">Bank</div><div class="custom-option" onclick="setCustomVal('edit-wallet','edit-wallet-trigger','edit-wallet-opts','e-Wallet')">e-Wallet</div></div></div><input type="hidden" id="edit-wallet" value="Tunai"></div>
         <div class="form-group" style="text-align:left; display:none;" id="edit-plot-container"><label>Plot</label><div class="custom-select-container"><div class="custom-select-trigger" id="edit-plot-trigger" onclick="toggleCustomSelect('edit-plot-opts', event)">-- Tanpa Plot --</div><div class="custom-select-options hidden" id="edit-plot-opts"></div></div><input type="hidden" id="edit-plot-val" value=""></div>
         <div class="form-group" style="text-align:left;"><label>Jumlah (Rp)</label><input type="text" inputmode="numeric" id="edit-amount"></div>
-        <div class="modal-actions"><button class="modal-btn cancel" onclick="document.getElementById('edit-modal').classList.add('hidden')">Batal</button><button class="modal-btn ok" id="edit-btn-save">Simpan</button></div>
+        <div class="modal-actions"><button class="modal-btn cancel" onclick="document.getElementById('edit-modal').classList.add('hidden'); document.body.classList.remove('modal-open');">Batal</button><button class="modal-btn ok" id="edit-btn-save">Simpan</button></div>
     </div>
 </div>
 
@@ -577,7 +580,7 @@
     setInterval(jalankanJam, 1000);
 
     // =========================================================
-    // 2. ALAT BANTU (UTILITIES)
+    // 2. ALAT BANTU (UTILITIES) - BUG FIX #5 (KURSOR LONCAT)
     // =========================================================
     const Utils = {
         buatId: () => Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
@@ -598,14 +601,19 @@
         },
         formatTglTampil: (ymd) => { const p = ymd.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; },
         formatRibuanInput: (e) => {
-            const input = e.target;
-            let cursorPos = input.selectionStart;
-            const originalLength = input.value.length;
-            let bersih = input.value.replace(/[^0-9]/g, '');
-            input.value = bersih ? parseInt(bersih, 10).toLocaleString('id-ID') : '';
-            const newLength = input.value.length;
-            cursorPos = cursorPos + (newLength - originalLength);
-            input.setSelectionRange(cursorPos, cursorPos);
+            const input = e.target; 
+            const cursorPos = input.selectionStart;
+            const rawTextBefore = input.value.substring(0, cursorPos).replace(/[^\d]/g, '');
+            let val = input.value.split(',')[0].replace(/[^\d]/g, ''); 
+            if (val.length > 15) val = val.substring(0, 15);
+            input.value = val ? parseInt(val, 10).toLocaleString('id-ID') : '';
+            let newCursorPos = 0, numDigitsFound = 0;
+            for (let i = 0; i < input.value.length; i++) {
+                if (/\d/.test(input.value[i])) numDigitsFound++;
+                if (numDigitsFound === rawTextBefore.length) { newCursorPos = i + 1; break; }
+            }
+            if (rawTextBefore.length === 0) newCursorPos = 0;
+            input.setSelectionRange(newCursorPos, newCursorPos);
         }
     };
 
@@ -613,19 +621,19 @@
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', Utils.formatRibuanInput);
     });
-
     // =========================================================
-    // 3. KONTROL TAMPILAN
+    // 3. KONTROL TAMPILAN - BUG FIX #1 (ANTI-AMNESIA TAB)
     // =========================================================
     function showPage(event, idHalaman) {
         document.getElementById('dropdown-menu').classList.add('hidden');
         document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(idHalaman).classList.remove('hidden');
-        event.currentTarget.classList.add('active');
         
-        if (idHalaman !== 'pemasukan') { document.getElementById('in-amount').value = ''; document.getElementById('in-desc').value = ''; }
-        if (idHalaman !== 'pengeluaran') { document.getElementById('out-amount').value = ''; document.getElementById('out-desc').value = ''; }
+        if (event) event.currentTarget.classList.add('active');
+
+        // BUG FIX: Baris pengosongan input otomatis di sini telah DIHAPUS 
+        // agar data tidak hilang saat pengguna hanya ingin pindah tab sebentar.
 
         if (idHalaman === 'rekap') updateRekap();
         if (idHalaman === 'plot') updatePlotList();
@@ -637,7 +645,9 @@
                 opsiHTML += `<div class="custom-option" onclick="setCustomVal('out-plot','out-plot-trigger','out-plot-opts','${p.id}', this.innerText)">${Utils.amanHTML(p.name)}</div>`;
             });
             kotakOpsi.innerHTML = opsiHTML;
-            setCustomVal('out-plot', 'out-plot-trigger', 'out-plot-opts', '');
+            if (!document.getElementById('out-plot').value) {
+                setCustomVal('out-plot', 'out-plot-trigger', 'out-plot-opts', '');
+            }
         }
     }
 
@@ -656,8 +666,18 @@
     }
 
     function toggleMenu(e) { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('hidden'); }
-    function openAboutModal() { document.getElementById('dropdown-menu').classList.add('hidden'); document.getElementById('about-modal').classList.remove('hidden'); }
-    function closeAboutModal() { document.getElementById('about-modal').classList.add('hidden'); }
+    
+    // BUG FIX #6: Tambahkan modal-open untuk mengunci scroll
+    function openAboutModal() { 
+        document.getElementById('dropdown-menu').classList.add('hidden'); 
+        document.getElementById('about-modal').classList.remove('hidden'); 
+        document.body.classList.add('modal-open');
+    }
+    
+    function closeAboutModal() { 
+        document.getElementById('about-modal').classList.add('hidden'); 
+        if(document.querySelectorAll('.modal-overlay:not(.hidden)').length === 0) document.body.classList.remove('modal-open');
+    }
 
     document.addEventListener('click', e => {
         const menu = document.getElementById('dropdown-menu');
@@ -667,33 +687,45 @@
 
     function showPopup(mode, pesan, warnaTema = 'green', callback = null, nilaiAwal = null, isAngka = false) {
         document.getElementById('modal-btn-ok').onclick = null;
+        document.body.classList.add('modal-open'); 
         
         const overlay = document.getElementById('custom-modal'), judul = document.getElementById('modal-title'), teks = document.getElementById('modal-text'), input = document.getElementById('modal-input'), btnBatal = document.getElementById('modal-btn-cancel'), btnOk = document.getElementById('modal-btn-ok');
         teks.innerText = pesan; overlay.classList.remove('hidden'); input.classList.add('hidden'); btnBatal.classList.add('hidden'); input.value = ''; input.oninput = null;
-        let hexColor = 'var(--wa-green)'; let teksJudul = 'Informasi';
+        
+        let hexColor = 'var(--wa-green)', teksJudul = 'Informasi';
         if (warnaTema === 'red') { hexColor = 'var(--danger)'; teksJudul = 'Peringatan!'; }
         else if (warnaTema === 'gold') { hexColor = 'var(--gold)'; teksJudul = 'Plot Anggaran'; }
         else if (warnaTema === 'blue') { hexColor = 'var(--blue)'; teksJudul = 'Mutasi / Rekap'; }
-        else { hexColor = 'var(--wa-green)'; teksJudul = 'Berhasil!'; }
+        
         if (mode === 'confirm') teksJudul = 'Konfirmasi';
         if (mode === 'edit') teksJudul = 'Edit Data';
+        
         judul.innerText = teksJudul; judul.style.color = hexColor;
-        btnOk.style.backgroundColor = hexColor; btnOk.style.color = (warnaTema === 'gold' || warnaTema === 'green' || warnaTema === 'blue') ? '#000' : '#fff';
+        btnOk.style.backgroundColor = hexColor; btnOk.style.color = (warnaTema === 'red') ? '#fff' : '#000';
         btnBatal.style.backgroundColor = 'transparent'; btnBatal.style.color = 'var(--text-light)'; btnBatal.style.border = '1px solid var(--border-color)';
+        
+        const closePopup = () => { 
+            overlay.classList.add('hidden'); 
+            if(document.querySelectorAll('.modal-overlay:not(.hidden)').length === 0) document.body.classList.remove('modal-open'); 
+        };
+
         if (mode === 'edit') {
             btnBatal.classList.remove('hidden'); input.classList.remove('hidden');
             if (isAngka) { input.inputMode = "numeric"; input.value = parseInt(nilaiAwal, 10).toLocaleString('id-ID'); input.oninput = Utils.formatRibuanInput; }
             else { input.inputMode = "text"; input.value = nilaiAwal; }
-            btnOk.onclick = () => { overlay.classList.add('hidden'); if(callback) callback(input.value); };
-            btnBatal.onclick = () => overlay.classList.add('hidden');
+            btnOk.onclick = () => { if(callback) callback(input.value); closePopup(); };
+            btnBatal.onclick = closePopup;
         } else if (mode === 'confirm') {
-            btnBatal.classList.remove('hidden'); btnOk.onclick = () => { overlay.classList.add('hidden'); if(callback) callback(); };
-            btnBatal.onclick = () => overlay.classList.add('hidden');
-        } else { btnOk.onclick = () => { overlay.classList.add('hidden'); if(callback) callback(); }; }
+            btnBatal.classList.remove('hidden'); 
+            btnOk.onclick = () => { if(callback) callback(); closePopup(); };
+            btnBatal.onclick = () => { closePopup(); document.getElementById('file-import').value = ''; }; // BUG FIX #4
+        } else { 
+            btnOk.onclick = () => { if(callback) callback(); closePopup(); }; 
+        }
     }
 
     // =========================================================
-    // 4. LOGIKA CRUD 
+    // 4. LOGIKA CRUD (DATABASE & AKUNTANSI)
     // =========================================================
     function getSaldoDompet(namaDompet) {
         let saldo = 0;
@@ -704,11 +736,7 @@
     }
 
     function saveData(event, tipe) {
-        const btn = event.currentTarget; 
-        btn.style.pointerEvents = 'none'; 
-        btn.style.opacity = '0.6';
-        setTimeout(() => { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; }, 1500);
-
+        const btn = event.currentTarget; btn.disabled = true; setTimeout(() => { btn.disabled = false; }, 1500);
         const pfx = tipe === 'income' ? 'in' : 'out';
         const tgl = document.getElementById(`${pfx}-date`).dataset.rawDate;
         const ket = document.getElementById(`${pfx}-desc`).value.trim();
@@ -721,69 +749,50 @@
         
         AppState.db[tipe].push({ id: Utils.buatId(), date: tgl, desc: ket, amount: nom, wallet: dmp, plotId: plt });
         simpanDatabase(); 
-        
         document.getElementById(`${pfx}-amount`).value = ''; document.getElementById(`${pfx}-desc`).value = '';
-        setCustomVal(`${pfx}-wallet`, `${pfx}-wallet-trigger`, `${pfx}-wallet-opts`, 'Tunai');
-        if (tipe === 'expense') setCustomVal('out-plot', 'out-plot-trigger', 'out-plot-opts', '');
-        
-        updateRekap(); 
-        updatePlotList(); 
+        updateRekap(); updatePlotList(); 
         showPopup('alert', "Catatan berhasil disimpan!", tipe === 'expense' ? 'red' : 'green');
     }
 
     function editData(tipe, idItem) {
         if (tipe === 'mutations') return showPopup('alert', "Mutasi tidak bisa diedit. Hapus (✕) dan buat ulang.", 'blue');
         const data = AppState.db[tipe].find(i => i.id === idItem); if (!data) return;
-        
+        document.body.classList.add('modal-open');
         const elTitle = document.getElementById('edit-modal-title');
         elTitle.innerText = tipe === 'income' ? 'Edit Pemasukan' : 'Edit Pengeluaran';
         elTitle.style.color = tipe === 'income' ? 'var(--wa-green)' : 'var(--danger)';
-        
         document.getElementById('edit-date').dataset.rawDate = data.date;
         document.getElementById('edit-date').value = Utils.formatTglTampil(data.date);
         document.getElementById('edit-desc').value = data.desc;
         document.getElementById('edit-amount').value = data.amount.toLocaleString('id-ID');
         setCustomVal('edit-wallet', 'edit-wallet-trigger', 'edit-wallet-opts', data.wallet || 'Tunai');
-        
         const wadahPlot = document.getElementById('edit-plot-container');
         if (tipe === 'expense') {
             wadahPlot.style.display = 'block';
             let opsiPlotHTML = `<div class="custom-option" style="color:var(--text-muted);" onclick="setCustomVal('edit-plot-val','edit-plot-trigger','edit-plot-opts','')">-- Tanpa Plot --</div>`;
             AppState.db.plots.forEach(p => opsiPlotHTML += `<div class="custom-option" onclick="setCustomVal('edit-plot-val','edit-plot-trigger','edit-plot-opts','${p.id}', this.innerText)">${Utils.amanHTML(p.name)}</div>`);
             document.getElementById('edit-plot-opts').innerHTML = opsiPlotHTML;
-            if (data.plotId) { const plotAsli = AppState.db.plots.find(pl => pl.id === data.plotId); setCustomVal('edit-plot-val', 'edit-plot-trigger', 'edit-plot-opts', data.plotId, plotAsli ? Utils.amanHTML(plotAsli.name) : ''); }
-            else { setCustomVal('edit-plot-val', 'edit-plot-trigger', 'edit-plot-opts', ''); }
+            if (data.plotId) { 
+                const plotAsli = AppState.db.plots.find(pl => pl.id === data.plotId); 
+                setCustomVal('edit-plot-val', 'edit-plot-trigger', 'edit-plot-opts', data.plotId, plotAsli ? Utils.amanHTML(plotAsli.name) : ''); 
+            } else { setCustomVal('edit-plot-val', 'edit-plot-trigger', 'edit-plot-opts', ''); }
         } else { wadahPlot.style.display = 'none'; }
-        
         document.getElementById('edit-modal').classList.remove('hidden');
-        
         document.getElementById('edit-btn-save').onclick = () => {
             const nomBaru = Math.abs(Number(document.getElementById('edit-amount').value.replace(/\./g, '')));
-            const ketBaru = document.getElementById('edit-desc').value.trim();
-            const dompetBaru = document.getElementById('edit-wallet').value;
-            const tglBaru = document.getElementById('edit-date').dataset.rawDate;
-            const plotBaru = tipe === 'expense' ? document.getElementById('edit-plot-val').value : null;
-
-            if (isNaN(nomBaru) || nomBaru <= 0) return showPopup('alert', "Jumlah tidak valid!", 'red');
-            if (!ketBaru) return showPopup('alert', "Keterangan tidak boleh kosong!", 'red');
-
-            if (data.amount === nomBaru && data.wallet === dompetBaru && data.date === tglBaru && data.desc === ketBaru && data.plotId === plotBaru) {
-                document.getElementById('edit-modal').classList.add('hidden'); return;
-            }
-            
-            const nominalLama = data.amount; const dompetLama = data.wallet; 
+            const ketBaru = document.getElementById('edit-desc').value.trim(), dompetBaru = document.getElementById('edit-wallet').value, tglBaru = document.getElementById('edit-date').dataset.rawDate, plotBaru = tipe === 'expense' ? document.getElementById('edit-plot-val').value : null;
+            if (isNaN(nomBaru) || nomBaru <= 0 || !ketBaru) return showPopup('alert', "Data tidak valid!", 'red');
+            const backup = { amount: data.amount, wallet: data.wallet };
             data.amount = nomBaru; data.wallet = dompetBaru;
-            
-            if (getSaldoDompet('Tunai') < 0 || getSaldoDompet('Bank') < 0 || getSaldoDompet('e-Wallet') < 0) {
-                data.amount = nominalLama; data.wallet = dompetLama; 
-                return showPopup('alert', "Batal: Saldo akan minus!", 'red');
+            // BUG FIX #4: Cek simulasi saldo dompet lama dan baru
+            if (getSaldoDompet(backup.wallet) < 0 || getSaldoDompet(dompetBaru) < 0) {
+                data.amount = backup.amount; data.wallet = backup.wallet; // Rollback
+                return showPopup('alert', "Batal: Saldo dompet akan menjadi minus!", 'red');
             }
-
-            data.date = tglBaru;
-            data.desc = ketBaru;
-            if (tipe === 'expense') data.plotId = plotBaru;
-
-            simpanDatabase(); document.getElementById('edit-modal').classList.add('hidden'); updateRekap(); updatePlotList();
+            data.date = tglBaru; data.desc = ketBaru; if (tipe === 'expense') data.plotId = plotBaru;
+            simpanDatabase(); document.getElementById('edit-modal').classList.add('hidden'); 
+            if(document.querySelectorAll('.modal-overlay:not(.hidden)').length === 0) document.body.classList.remove('modal-open');
+            updateRekap(); updatePlotList();
         };
     }
 
@@ -791,69 +800,81 @@
         event.stopPropagation(); const dataTarget = AppState.db[tipe].find(x => x.id === idItem);
         if (tipe === 'income' && (getSaldoDompet(dataTarget.wallet) - dataTarget.amount < 0)) return showPopup('alert', `Batal: Saldo akan minus!`, 'red');
         if (tipe === 'mutations' && (getSaldoDompet(dataTarget.to) - dataTarget.amount < 0)) return showPopup('alert', `Batal: Saldo akan minus!`, 'red');
-        showPopup('confirm', "Yakin menghapus riwayat?", 'red', () => { AppState.db[tipe] = AppState.db[tipe].filter(x => x.id !== idItem); simpanDatabase(); updateRekap(); updatePlotList(); });
+        showPopup('confirm', "Yakin menghapus riwayat?", 'red', () => { 
+            AppState.db[tipe] = AppState.db[tipe].filter(x => x.id !== idItem); 
+            simpanDatabase(); updateRekap(); updatePlotList(); 
+        });
     }
 
-    function openMutationModal() { document.getElementById('mutation-modal').classList.remove('hidden'); setCustomVal('mut-from', 'mut-from-trigger', 'mut-from-opts', 'Tunai'); setCustomVal('mut-to', 'mut-to-trigger', 'mut-to-opts', 'Bank'); }
-    function closeMutationModal() { document.getElementById('mutation-modal').classList.add('hidden'); document.getElementById('mut-amount').value = ''; }
+    function openMutationModal() { 
+        document.getElementById('mutation-modal').classList.remove('hidden'); 
+        document.body.classList.add('modal-open');
+        setCustomVal('mut-from', 'mut-from-trigger', 'mut-from-opts', 'Tunai'); 
+        setCustomVal('mut-to', 'mut-to-trigger', 'mut-to-opts', 'Bank'); 
+    }
     
+    function closeMutationModal() { 
+        document.getElementById('mutation-modal').classList.add('hidden'); 
+        if(document.querySelectorAll('.modal-overlay:not(.hidden)').length === 0) document.body.classList.remove('modal-open');
+        document.getElementById('mut-amount').value = ''; 
+    }
     function processMutation(event) {
         const btn = event.currentTarget; btn.style.pointerEvents = 'none'; setTimeout(() => btn.style.pointerEvents = 'auto', 1500);
         const asal = document.getElementById('mut-from').value, tujuan = document.getElementById('mut-to').value, nominal = Number(document.getElementById('mut-amount').value.replace(/\./g, ''));
-        if (asal === tujuan) return showPopup('alert', 'Dompet sama!', 'red');
-        if (isNaN(nominal) || nominal <= 0) return showPopup('alert', 'Jumlah salah!', 'red');
-        if (getSaldoDompet(asal) < nominal) return showPopup('alert', `Saldo [${asal}] tidak cukup!`, 'red');
+        if (asal === tujuan) return showPopup('alert', 'Dompet asal dan tujuan sama!', 'red');
+        if (isNaN(nominal) || nominal <= 0) return showPopup('alert', 'Jumlah tidak valid!', 'red');
+        if (getSaldoDompet(asal) < nominal) return showPopup('alert', `Saldo [${asal}] tidak mencukupi!`, 'red');
         
-        const tglMutasi = Utils.tglHariIni(); 
-        AppState.db.mutations.push({ id: Utils.buatId(), date: tglMutasi, from: asal, to: tujuan, amount: nominal });
-        simpanDatabase(); closeMutationModal(); updateRekap(); showPopup('alert', 'Berhasil!', 'green');
+        AppState.db.mutations.push({ id: Utils.buatId(), date: Utils.tglHariIni(), from: asal, to: tujuan, amount: nominal });
+        simpanDatabase(); closeMutationModal(); updateRekap(); showPopup('alert', 'Transfer berhasil!', 'green');
     }
 
     function savePlot(event) {
         const btn = event.currentTarget; btn.style.pointerEvents = 'none'; setTimeout(() => btn.style.pointerEvents = 'auto', 1500);
         const nama = document.getElementById('plot-name').value.trim(), target = Math.abs(Number(document.getElementById('plot-amount').value.replace(/\./g, '')));
-        if (!nama || isNaN(target) || target <= 0) return showPopup('alert', "Isi Nama & Target!", 'red');
-        
+        if (!nama || isNaN(target) || target <= 0) return showPopup('alert', "Isi Nama dan Target dengan benar!", 'red');
         if (AppState.db.plots.some(p => p.name.toLowerCase() === nama.toLowerCase())) return showPopup('alert', 'Nama Plot sudah ada!', 'red');
         
         AppState.db.plots.push({ id: Utils.buatId(), name: nama, target: target });
         simpanDatabase(); document.getElementById('plot-name').value = ''; document.getElementById('plot-amount').value = '';
-        updatePlotList(); showPopup('alert', "Alokasi Dibuat!", 'gold');
+        updatePlotList(); showPopup('alert', "Alokasi Anggaran Dibuat!", 'gold');
     }
 
     function editPlot(idPlot, jenis) {
         const plot = AppState.db.plots.find(x => x.id === idPlot), isAngka = jenis === 'target';
-        const msg = isAngka ? "Ubah Target: (Perubahan akan berlaku lintas bulan)" : "Ubah Nama:";
-        showPopup('edit', msg, 'gold', val => {
+        showPopup('edit', isAngka ? "Ubah Target Bulanan:" : "Ubah Nama Anggaran:", 'gold', val => {
             if (!val) return;
-            if (isAngka) { const nt = Math.abs(Number(val.replace(/\./g, ''))); if (isNaN(nt) || nt <= 0) return showPopup('alert', 'Target salah!', 'red'); plot[jenis] = nt; }
-            else { 
-                const namaBaru = val.trim();
-                if (namaBaru.toLowerCase() !== plot.name.toLowerCase() && AppState.db.plots.some(p => p.name.toLowerCase() === namaBaru.toLowerCase())) {
-                    return showPopup('alert', 'Nama Plot sudah digunakan!', 'red');
-                }
-                plot[jenis] = namaBaru; 
+            if (isAngka) {
+                const nt = Math.abs(Number(val.replace(/\./g, '')));
+                if (isNaN(nt) || nt <= 0) return showPopup('alert', 'Target tidak valid!', 'red');
+                plot[jenis] = nt;
+            } else {
+                const nb = val.trim();
+                if (nb.toLowerCase() !== plot.name.toLowerCase() && AppState.db.plots.some(p => p.name.toLowerCase() === nb.toLowerCase())) return showPopup('alert', 'Nama sudah digunakan!', 'red');
+                plot[jenis] = nb;
             }
             simpanDatabase(); updatePlotList();
         }, plot[jenis], isAngka);
     }
 
-    function deletePlot(idPlot) { showPopup('confirm', "Hapus plot?", 'red', () => { AppState.db.plots = AppState.db.plots.filter(p => p.id !== idPlot); AppState.db.expense.forEach(e => { if (e.plotId === idPlot) e.plotId = ""; }); simpanDatabase(); updatePlotList(); }); }
+    function deletePlot(idPlot) {
+        showPopup('confirm', "Hapus plot ini? (Riwayat transaksi tetap ada)", 'red', () => {
+            AppState.db.plots = AppState.db.plots.filter(p => p.id !== idPlot);
+            AppState.db.expense.forEach(e => { if (e.plotId === idPlot) e.plotId = ""; });
+            simpanDatabase(); updatePlotList();
+        });
+    }
 
-    // =========================================================
-    // 5. RENDER ENGINE 
-    // =========================================================
     function updatePlotList() {
         const filterBulan = document.getElementById('plot-month-filter').dataset.rawDate, wadah = document.getElementById('plot-list');
-        if (AppState.db.plots.length === 0) { wadah.innerHTML = '<div style="text-align:center; color:var(--border-color); font-size:12px; padding:10px 0;">- Belum ada alokasi -</div>'; return; }
+        if (AppState.db.plots.length === 0) { wadah.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:12px; padding:20px 0;">- Belum ada alokasi anggaran -</div>'; return; }
         const pengeluaranBulanIni = AppState.db.expense.filter(e => e.date.startsWith(filterBulan));
         let h = ''; AppState.db.plots.forEach(p => {
             const tp = Math.max(0, pengeluaranBulanIni.reduce((sum, e) => e.plotId === p.id ? sum + e.amount : sum, 0));
             const ps = p.target > 0 ? Math.max(0, Math.min((tp / p.target) * 100, 100)) : (tp > 0 ? 100 : 0);
-            
             h += `<div style="margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:12px; display:flex; flex-direction:column; gap:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;"><strong class="editable" onclick="editPlot('${p.id}','name')">${Utils.amanHTML(p.name)}</strong><div onclick="deletePlot('${p.id}')"><svg class="svg-x" viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div></div>
-                <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-light);"><span class="editable" onclick="editPlot('${p.id}','target')" style="color: var(--text-muted);">Target: ${Utils.formatRp(p.target)}</span><span>Pakai: ${Utils.formatRp(tp)}</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span class="editable" onclick="editPlot('${p.id}','target')" style="color:var(--text-muted);">Target: ${Utils.formatRp(p.target)}</span><span>Pakai: ${Utils.formatRp(tp)}</span></div>
                 <div class="progress-container" style="height:6px; background:#000; border-radius:3px; overflow:hidden;"><div class="progress-bar" style="height:100%; width:${ps}%; background:${ps >= 100 ? 'var(--danger)' : 'var(--gold)'};"></div></div>
             </div>`;
         }); wadah.innerHTML = h;
@@ -862,95 +883,46 @@
     function updateRekap() {
         const blnSortir = document.getElementById('rekap-month-picker').dataset.rawDate;
         const elMasuk = document.getElementById('list-income'), elKeluar = document.getElementById('list-expense');
-        
-        const gabungan = [
-            ...AppState.db.income.map(i => ({...i, type:'income'})), 
-            ...AppState.db.expense.map(e => ({...e, type:'expense'})), 
-            ...AppState.db.mutations.map(m => ({...m, type:'mutations', desc:`Mutasi: ${m.from} ➔ ${m.to}`}))
-        ].filter(item => item.date.startsWith(blnSortir));
-        
-        gabungan.sort((a, b) => {
-            if (a.date !== b.date) return a.date > b.date ? -1 : 1; 
-            return a.id > b.id ? -1 : 1; 
-        });
-
-        let htmlMasuk = '', htmlKeluar = ''; let adaIn = false, adaOut = false;
+        const gabungan = [...AppState.db.income.map(i => ({...i, type:'income'})), ...AppState.db.expense.map(e => ({...e, type:'expense'})), ...AppState.db.mutations.map(m => ({...m, type:'mutations', desc:`Mutasi: ${m.from} ➔ ${m.to}`}))].filter(item => item.date.startsWith(blnSortir));
+        gabungan.sort((a, b) => a.date !== b.date ? (a.date > b.date ? -1 : 1) : (a.id > b.id ? -1 : 1));
+        let htmlMasuk = '', htmlKeluar = '', adaIn = false, adaOut = false;
         gabungan.forEach(item => {
             const isIn = item.type === 'income', isMut = item.type === 'mutations';
-            const tglTampil = Utils.formatTglTampil(item.date).substring(0, 5); 
-            
-            const barisHTML = `<li><div class="editable" onclick="editData('${item.type}','${item.id}')"><div style="font-size:12px; font-weight:600; word-wrap: break-word;">${Utils.amanHTML(item.desc)}</div><div style="font-size:11px; font-weight:700;" class="${isMut ? 'mutasi-text' : (isIn ? 'income-text' : 'expense-text')}">${isMut ? '⇄' : (isIn ? '+' : '-')} ${Utils.formatRp(item.amount)} <br><small style="color:var(--text-muted);">${tglTampil} • (${isMut ? 'Transfer' : item.wallet})</small></div></div><div onclick="deleteItem(event, '${item.type}','${item.id}')" style="padding-left: 6px;"><svg class="svg-x" viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div></li>`;
+            const barisHTML = `<li><div class="editable" onclick="editData('${item.type}','${item.id}')"><div style="font-size:12px; font-weight:600; word-wrap:break-word;">${Utils.amanHTML(item.desc)}</div><div style="font-size:11px; font-weight:700;" class="${isMut ? 'mutasi-text' : (isIn ? 'income-text' : 'expense-text')}">${isMut ? '⇄' : (isIn ? '+' : '-')} ${Utils.formatRp(item.amount)} <br><small style="color:var(--text-muted);">${Utils.formatTglTampil(item.date).substring(0,5)} • (${isMut ? 'Transfer' : item.wallet})</small></div></div><div onclick="deleteItem(event, '${item.type}','${item.id}')" style="padding-left: 6px;"><svg class="svg-x" viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div></li>`;
             if (isIn) { htmlMasuk += barisHTML; adaIn = true; } else { htmlKeluar += barisHTML; adaOut = true; }
         });
         elMasuk.innerHTML = adaIn ? htmlMasuk : '<li style="justify-content:center; color:var(--text-muted); font-size:11px; border:none; padding-top:20px;">- Kosong -</li>';
         elKeluar.innerHTML = adaOut ? htmlKeluar : '<li style="justify-content:center; color:var(--text-muted); font-size:11px; border:none; padding-top:20px;">- Kosong -</li>';
-        
-        // BUG FIX #21: Total Pemasukan/Pengeluaran sekarang dihitung per bulan yang difilter, bukan total seluruh zaman
         const st = getSaldoDompet('Tunai'), sb = getSaldoDompet('Bank'), se = getSaldoDompet('e-Wallet');
-        let gi = 0, go = 0; 
-        AppState.db.income.forEach(i => { if (i.date.startsWith(blnSortir)) gi += i.amount; }); 
-        AppState.db.expense.forEach(e => { if (e.date.startsWith(blnSortir)) go += e.amount; });
-        
+        let gi = 0, go = 0; AppState.db.income.forEach(i => { if (i.date.startsWith(blnSortir)) gi += i.amount; }); AppState.db.expense.forEach(e => { if (e.date.startsWith(blnSortir)) go += e.amount; });
         document.getElementById('total-balance').innerText = Utils.formatRp(st + sb + se);
         document.getElementById('bal-tunai').innerText = Utils.formatRp(st); document.getElementById('bal-bank').innerText = Utils.formatRp(sb); document.getElementById('bal-ewallet').innerText = Utils.formatRp(se);
         document.getElementById('total-in').innerText = Utils.formatRp(gi); document.getElementById('total-out').innerText = Utils.formatRp(go);
     }
 
     // =========================================================
-    // 6. EXCEL 
+    // 6. EXCEL SYSTEM (BACKPORT ENGINE PRO)
     // =========================================================
     function exportToExcel() {
         document.getElementById('dropdown-menu').classList.add('hidden');
-        
-        const gabungan = [
-            ...AppState.db.income.map(x => ({ID: x.id, Tanggal: x.date, Tipe: 'DEBIT', "Dompet Asal": x.wallet || 'Tunai', "Dompet Tujuan": '-', Keterangan: Utils.sanitizeExcel(x.desc), Jumlah: x.amount, PlotID: '-'})), 
-            ...AppState.db.expense.map(x => ({ID: x.id, Tanggal: x.date, Tipe: 'KREDIT', "Dompet Asal": x.wallet || 'Tunai', "Dompet Tujuan": '-', Keterangan: Utils.sanitizeExcel(x.desc), Jumlah: x.amount, PlotID: x.plotId || '-'})), 
-            ...AppState.db.mutations.map(x => ({ID: x.id, Tanggal: x.date, Tipe: 'MUTASI', "Dompet Asal": x.from, "Dompet Tujuan": x.to, Keterangan: 'Transfer Mutasi', Jumlah: x.amount, PlotID: '-'}))
-        ].sort((a, b) => new Date(a.Tanggal) - new Date(b.Tanggal));
-        
-        if (!gabungan.length && !AppState.db.plots.length) return showPopup('alert', "Belum ada catatan!", 'red');
-        
+        const gabungan = [...AppState.db.income.map(x => ({ID: x.id, Tanggal: x.date, Tipe: 'DEBIT', "Dompet": x.wallet || 'Tunai', Keterangan: Utils.sanitizeExcel(x.desc), Jumlah: x.amount, PlotID: '-'})), ...AppState.db.expense.map(x => ({ID: x.id, Tanggal: x.date, Tipe: 'KREDIT', "Dompet": x.wallet || 'Tunai', Keterangan: Utils.sanitizeExcel(x.desc), Jumlah: x.amount, PlotID: x.plotId || '-'})), ...AppState.db.mutations.map(x => ({ID: x.id, Tanggal: x.date, Tipe: 'MUTASI', "Dompet": `${x.from} > ${x.to}`, Keterangan: 'Transfer', Jumlah: x.amount, PlotID: '-'}))].sort((a, b) => new Date(a.Tanggal) - new Date(b.Tanggal));
+        if (!gabungan.length && !AppState.db.plots.length) return showPopup('alert', "Data kosong!", 'red');
         const wb = XLSX.utils.book_new();
-        
-        if (gabungan.length > 0) {
-            const ws = XLSX.utils.json_to_sheet(gabungan);
-            XLSX.utils.book_append_sheet(wb, ws, "RekapKeuangan"); 
-        }
-        
-        if (AppState.db.plots.length > 0) {
-            const wsPlot = XLSX.utils.json_to_sheet(AppState.db.plots.map(p => ({ID: p.id, Nama: Utils.sanitizeExcel(p.name), Target: p.target})));
-            XLSX.utils.book_append_sheet(wb, wsPlot, "PlotAnggaran");
-        }
-        
+        if (gabungan.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(gabungan), "RekapKeuangan"); 
+        if (AppState.db.plots.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(AppState.db.plots.map(p => ({ID: p.id, Nama: Utils.sanitizeExcel(p.name), Target: p.target}))), "PlotAnggaran");
         XLSX.writeFile(wb, `keuanganKU_Backup_${Utils.tglHariIni()}.xlsx`);
     }
 
-    // BUG FIX #22: Normalisasi dan Keamanan Format Tanggal Import (Bypass Format US/UK Date)
     function parseExcelDate(val) {
         if (!val) return Utils.tglHariIni();
-        if (!isNaN(val)) { 
-            let days = Math.floor(val);
-            if (days < 60) days++; 
-            const d = new Date(Date.UTC(1899, 11, 30 + days));
-            return d.toISOString().split('T')[0]; 
-        }
-        if (typeof val === 'string') { 
-            let p = val.split(/[-/]/); 
-            if (p.length === 3) { 
-                if (p[2].length === 4) {
-                    let m = parseInt(p[1], 10);
-                    if (m > 12) return `${p[2]}-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}`;
-                    return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-                }
-                if (p[0].length === 4) return `${p[0]}-${p[1].padStart(2,'0')}-${p[2].padStart(2,'0')}`; 
-            } 
-        }
+        if (!isNaN(val)) { let days = Math.floor(val); if (days < 60) days++; const d = new Date(Date.UTC(1899, 11, 30 + days)); return d.toISOString().split('T')[0]; }
+        if (typeof val === 'string') { let p = val.split(/[-/]/); if (p.length === 3) { if (p[2].length === 4) { let m = parseInt(p[1], 10); return m > 12 ? `${p[2]}-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}` : `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`; } if (p[0].length === 4) return `${p[0]}-${p[1].padStart(2,'0')}-${p[2].padStart(2,'0')}`; } }
         return Utils.tglHariIni();
     }
     
-    function getExCol(r, possibleNames) { const keys = Object.keys(r); const foundKey = keys.find(k => possibleNames.includes(k.toUpperCase())); return foundKey ? r[foundKey] : undefined; }
+    function getExCol(r, n) { const k = Object.keys(r).find(x => n.includes(x.toUpperCase())); return k ? r[k] : undefined; }
     function validasiDompet(n) { const d = String(n || '').trim(); return ['Tunai', 'Bank', 'e-Wallet'].includes(d) ? d : 'Tunai'; }
-    function bersihkanAngka(v) { if (typeof v === 'number') return Math.abs(Math.round(v)); const b = String(v).replace(/[^0-9]/g, ''); return b ? Math.abs(Number(b)) : NaN; }
+    function bersihkanAngka(v) { if (typeof v === 'number') return Math.abs(Math.round(v)); const b = String(v).replace(/[^0-9]/g, ''); return b ? Math.abs(Number(b)) : 0; }
 
     function importFromExcel(e) {
         document.getElementById('dropdown-menu').classList.add('hidden'); const file = e.target.files[0]; if (!file) return;
@@ -961,136 +933,70 @@
                 AppState.tempImport = wb.SheetNames.includes("RekapKeuangan") ? XLSX.utils.sheet_to_json(wb.Sheets["RekapKeuangan"]) : XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); 
                 AppState.tempImportPlots = wb.SheetNames.includes("PlotAnggaran") ? XLSX.utils.sheet_to_json(wb.Sheets["PlotAnggaran"]) : [];
                 document.getElementById('import-modal').classList.remove('hidden'); 
-            } catch (err) { 
-                showPopup('alert', "File Excel rusak atau tidak sesuai format.", 'red'); 
-            } finally { 
-                e.target.value = ''; 
-            } 
+                document.body.classList.add('modal-open');
+            } catch (err) { showPopup('alert', "Format Excel tidak didukung.", 'red'); } finally { e.target.value = ''; } 
         }; 
         reader.readAsArrayBuffer(file);
     }
 
     function confirmImportRingkas() {
         document.getElementById('import-modal').classList.add('hidden');
-        showPopup('confirm', "Import Ringkas akan mengganti histori lama dengan SALDO AWAL (hari ini). Lanjutkan?", 'red', () => {
-            executeImport('ringkas');
-        });
-    }
-
-    function isIdExistInDb(id) {
-        return AppState.db.income.some(x=>x.id===id) || AppState.db.expense.some(x=>x.id===id) || AppState.db.mutations.some(x=>x.id===id);
+        showPopup('confirm', "PENTING! Import Ringkas akan me-reset progres Plot Anggaran bulan berjalan. Lanjutkan?", 'red', () => executeImport('ringkas'));
     }
 
     function executeImport(mode) {
-        if(document.getElementById('import-modal')) document.getElementById('import-modal').classList.add('hidden'); 
+        const modal = document.getElementById('import-modal'); if(modal) modal.classList.add('hidden');
+        document.body.classList.remove('modal-open');
         
-        if (AppState.tempImportPlots && AppState.tempImportPlots.length > 0) {
-            AppState.tempImportPlots.forEach(p => {
-                const idPlot = getExCol(p, ['ID']) || Utils.buatId();
-                const target = bersihkanAngka(getExCol(p, ['TARGET'])) || 0;
-                if (!AppState.db.plots.some(x => x.id === idPlot)) {
-                    AppState.db.plots.push({ id: idPlot, name: getExCol(p, ['NAMA']) || 'Tanpa Nama', target: target });
-                }
-            });
-        }
-
-        if (mode === 'semua') {
-            AppState.tempImport.forEach(r => {
-                const tipe = String(getExCol(r, ['TIPE']) || '').toUpperCase();
-                const d = parseExcelDate(getExCol(r, ['TANGGAL']));
-                const nom = bersihkanAngka(getExCol(r, ['JUMLAH']));
-                const ket = getExCol(r, ['KETERANGAN']) || 'Tanpa Keterangan';
-                const da = validasiDompet(getExCol(r, ['DOMPET ASAL', 'DOMPET']));
-                const dt = validasiDompet(getExCol(r, ['DOMPET TUJUAN', 'KE'])); 
-                
-                let rId = getExCol(r, ['ID']); 
-                if (rId && isIdExistInDb(rId)) return; 
-
-                let rPlotId = getExCol(r, ['PLOTID']);
-                if (rPlotId === '-') rPlotId = null;
-                if (rPlotId && !AppState.db.plots.some(p => p.id === rPlotId)) rPlotId = null;
-
-                if (isNaN(nom) || nom <= 0) return; 
-
-                if (tipe === 'DEBIT') {
-                    const isExist = rId ? false : AppState.db.income.some(i => i.date === d && i.amount === nom && i.desc === ket);
-                    if (!isExist) AppState.db.income.push({ id: rId || Utils.buatId(), date: d, desc: ket, amount: nom, wallet: da });
-                }
-                if (tipe === 'KREDIT') {
-                    const isExist = rId ? false : AppState.db.expense.some(e => e.date === d && e.amount === nom && e.desc === ket);
-                    if (!isExist) AppState.db.expense.push({ id: rId || Utils.buatId(), date: d, desc: ket, amount: nom, wallet: da, plotId: rPlotId });
-                }
-                if (tipe === 'MUTASI') {
-                    if (da === dt) return; 
-                    const isExist = rId ? false : AppState.db.mutations.some(m => m.date === d && m.amount === nom && m.from === da && m.to === dt);
-                    if (!isExist) AppState.db.mutations.push({ id: rId || Utils.buatId(), date: d, from: da, to: dt, amount: nom });
-                }
-            });
-        } else if (mode === 'ringkas') {
+        if (mode === 'ringkas') {
             let k = { 'Tunai': 0, 'Bank': 0, 'e-Wallet': 0 }; 
             AppState.tempImport.forEach(r => { 
-                const tipe = String(getExCol(r, ['TIPE']) || '').toUpperCase();
-                const nom = bersihkanAngka(getExCol(r, ['JUMLAH'])); 
-                if (!isNaN(nom)) { 
-                    const da = validasiDompet(getExCol(r, ['DOMPET ASAL', 'DOMPET'])); 
-                    if (tipe === 'DEBIT') k[da] += nom; 
-                    if (tipe === 'KREDIT') k[da] -= nom; 
-                    if (tipe === 'MUTASI') {
-                        const dt = validasiDompet(getExCol(r, ['DOMPET TUJUAN', 'KE']));
-                        if(da !== dt) { k[da] -= nom; k[dt] += nom; }
-                    }
-                } 
+                const tipe = String(getExCol(r, ['TIPE']) || '').toUpperCase(), nom = bersihkanAngka(getExCol(r, ['JUMLAH'])), d = validasiDompet(getExCol(r, ['DOMPET'])); 
+                if (tipe === 'DEBIT') k[d] += nom; else if (tipe === 'KREDIT') k[d] -= nom; else if (tipe === 'MUTASI') { const p = d.split('>'); if(p.length === 2) { k[p[0].trim()] -= nom; k[p[1].trim()] += nom; } }
             });
-            
             AppState.db.income = []; AppState.db.expense = []; AppState.db.mutations = [];
-
-            Object.keys(k).forEach(dom => { 
-                if (k[dom] > 0) AppState.db.income.push({ id: Utils.buatId(), date: Utils.tglHariIni(), desc: `Saldo Awal (Import)`, amount: k[dom], wallet: dom }); 
-                else if (k[dom] < 0) AppState.db.expense.push({ id: Utils.buatId(), date: Utils.tglHariIni(), desc: `Koreksi Saldo (Import)`, amount: Math.abs(k[dom]), wallet: dom }); 
+            Object.keys(k).forEach(dom => { if (k[dom] > 0) AppState.db.income.push({ id: Utils.buatId(), date: Utils.tglHariIni(), desc: `Saldo Awal (Import)`, amount: k[dom], wallet: dom }); else if (k[dom] < 0) AppState.db.expense.push({ id: Utils.buatId(), date: Utils.tglHariIni(), desc: `Koreksi Saldo (Import)`, amount: Math.abs(k[dom]), wallet: dom }); });
+        } else {
+            // BUG FIX #1 & #2: Sync Hapus & Validasi Saldo Minus via Excel
+            const newIncome = [], newExpense = [], newMutations = [], newPlots = [];
+            AppState.tempImportPlots.forEach(p => { newPlots.push({ id: getExCol(p, ['ID']) || Utils.buatId(), name: getExCol(p, ['NAMA']) || 'Alokasi', target: bersihkanAngka(getExCol(p, ['TARGET'])) }); });
+            AppState.tempImport.forEach(r => {
+                const t = String(getExCol(r, ['TIPE']) || '').toUpperCase(), d = parseExcelDate(getExCol(r, ['TANGGAL'])), n = bersihkanAngka(getExCol(r, ['JUMLAH'])), k = getExCol(r, ['KETERANGAN']) || 'Import', w = getExCol(r, ['DOMPET']) || 'Tunai';
+                if (t === 'DEBIT') newIncome.push({ id: getExCol(r, ['ID']) || Utils.buatId(), date: d, desc: k, amount: n, wallet: validasiDompet(w) });
+                else if (t === 'KREDIT') newExpense.push({ id: getExCol(r, ['ID']) || Utils.buatId(), date: d, desc: k, amount: n, wallet: validasiDompet(w), plotId: getExCol(r, ['PLOTID']) === '-' ? "" : getExCol(r, ['PLOTID']) });
+                else if (t === 'MUTASI') { const p = w.split('>'); if(p.length === 2) newMutations.push({ id: getExCol(r, ['ID']) || Utils.buatId(), date: d, from: validasiDompet(p[0]), to: validasiDompet(p[1]), amount: n }); }
             });
+            // Simulasi Saldo Akhir sebelum menimpa database
+            let s = { 'Tunai': 0, 'Bank': 0, 'e-Wallet': 0 };
+            newIncome.forEach(i => s[i.wallet] += i.amount); newExpense.forEach(e => s[e.wallet] -= e.amount); newMutations.forEach(m => { s[m.from] -= m.amount; s[m.to] += m.amount; });
+            if (Object.values(s).some(v => v < 0)) return showPopup('alert', "Gagal! Data di Excel akan membuat saldo menjadi minus.", 'red');
+            AppState.db = { income: newIncome, expense: newExpense, mutations: newMutations, plots: newPlots };
         }
-        simpanDatabase(); AppState.tempImport = []; AppState.tempImportPlots = []; updateRekap(); updatePlotList(); showPopup('alert', "Diimpor!", 'green');
+        simpanDatabase(); AppState.tempImport = []; AppState.tempImportPlots = []; updateRekap(); updatePlotList(); showPopup('alert', "Sinkronisasi Berhasil!", 'green');
     }
 
-    function promptClearData() { document.getElementById('dropdown-menu').classList.add('hidden'); showPopup('confirm', "KOSONGKAN DATA?", 'red', () => { localStorage.removeItem('myMoneyDB'); AppState.db = { income: [], expense: [], mutations: [], plots: [] }; simpanDatabase(); updateRekap(); updatePlotList(); showPopup('alert', "Dikosongkan.", 'green'); }); }
+    function promptClearData() { document.getElementById('dropdown-menu').classList.add('hidden'); showPopup('confirm', "HAPUS SEMUA DATA?", 'red', () => { localStorage.removeItem('myMoneyDB'); AppState.db = { income: [], expense: [], mutations: [], plots: [] }; simpanDatabase(); updateRekap(); updatePlotList(); showPopup('alert', "Data dikosongkan.", 'green'); }); }
 
     // =========================================================
-    // 7. DATE PICKER 
+    // 7. DATE PICKER & INITIALIZER
     // =========================================================
     const Picker = { mode: 'date', curr: new Date(), sel: new Date(), targetId: '', theme: '' };
     const NamaBln = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'], BlnPdk = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
     
     function inisiasiKalenderAwal() { 
-        const hrIni = Utils.tglHariIni(); 
-        ['in-date', 'out-date'].forEach(id => { 
-            const el = document.getElementById(id); 
-            if (el) { el.dataset.rawDate = hrIni; el.value = Utils.formatTglTampil(hrIni); } 
-        }); 
-        const blnIni = hrIni.substring(0, 7); 
-        ['plot-month-filter', 'rekap-month-picker'].forEach(id => {
-            const elBulan = document.getElementById(id);
-            if (elBulan) {
-                elBulan.dataset.rawDate = blnIni; 
-                elBulan.value = `${BlnPdk[parseInt(blnIni.split('-')[1], 10)-1]} ${blnIni.split('-')[0]}`;
-            }
-        });
+        const hrIni = Utils.tglHariIni(); ['in-date', 'out-date'].forEach(id => { const el = document.getElementById(id); if (el) { el.dataset.rawDate = hrIni; el.value = Utils.formatTglTampil(hrIni); } }); 
+        const blnIni = hrIni.substring(0, 7); ['plot-month-filter', 'rekap-month-picker'].forEach(id => { const el = document.getElementById(id); if (el) { el.dataset.rawDate = blnIni; el.value = `${BlnPdk[parseInt(blnIni.split('-')[1], 10)-1]} ${blnIni.split('-')[0]}`; } });
     }
 
-    function openPicker(id, m, w) {
-        Picker.targetId = id; Picker.mode = m; Picker.theme = w; const val = document.getElementById(id).dataset.rawDate;
-        Picker.sel = new Date(m === 'month' ? val + "-01T00:00:00" : val + "T00:00:00"); Picker.curr = new Date(Picker.sel);
-        document.getElementById('cp-day-view').classList.toggle('hidden', m !== 'date'); document.getElementById('cp-month-view').classList.toggle('hidden', m === 'date');
-        const btnSet = document.getElementById('cp-setel-btn'); btnSet.style.backgroundColor = w; renderKalender(); document.getElementById('custom-picker').classList.remove('hidden');
-    }
-    function closePicker() { document.getElementById('custom-picker').classList.add('hidden'); }
+    function openPicker(id, m, w) { Picker.targetId = id; Picker.mode = m; Picker.theme = w; const val = document.getElementById(id).dataset.rawDate; Picker.sel = new Date(m === 'month' ? val + "-01T00:00:00" : val + "T00:00:00"); Picker.curr = new Date(Picker.sel); document.getElementById('cp-day-view').classList.toggle('hidden', m !== 'date'); document.getElementById('cp-month-view').classList.toggle('hidden', m === 'date'); document.getElementById('cp-setel-btn').style.backgroundColor = w; renderKalender(); document.getElementById('custom-picker').classList.remove('hidden'); document.body.classList.add('modal-open'); }
+    function closePicker() { document.getElementById('custom-picker').classList.add('hidden'); if(document.querySelectorAll('.modal-overlay:not(.hidden)').length === 0) document.body.classList.remove('modal-open'); }
     function cpChange(arah) { Picker.mode === 'date' ? Picker.curr.setMonth(Picker.curr.getMonth() + arah) : Picker.curr.setFullYear(Picker.curr.getFullYear() + arah); renderKalender(); }
     function cpSelectDay(t) { Picker.sel = new Date(Picker.curr.getFullYear(), Picker.curr.getMonth(), t); renderKalender(); }
     function cpSelectMonth(b) { Picker.sel = new Date(Picker.curr.getFullYear(), b, 1); renderKalender(); }
     function cpSetToday() { const d = new Date(); Picker.sel = new Date(d.getFullYear(), d.getMonth(), Picker.mode === 'date' ? d.getDate() : 1); Picker.curr = new Date(Picker.sel); setPickerDate(); }
     function setPickerDate() {
         const y = Picker.sel.getFullYear(), m = String(Picker.sel.getMonth() + 1).padStart(2, '0'), d = String(Picker.sel.getDate()).padStart(2, '0'), el = document.getElementById(Picker.targetId);
-        if (Picker.mode === 'date') { const ymd = `${y}-${m}-${d}`; el.dataset.rawDate = ymd; el.value = Utils.formatTglTampil(ymd); }
-        else { const ym = `${y}-${m}`; el.dataset.rawDate = ym; el.value = `${BlnPdk[Picker.sel.getMonth()]} ${y}`; }
+        if (Picker.mode === 'date') { const ymd = `${y}-${m}-${d}`; el.dataset.rawDate = ymd; el.value = Utils.formatTglTampil(ymd); } else { const ym = `${y}-${m}`; el.dataset.rawDate = ym; el.value = `${BlnPdk[Picker.sel.getMonth()]} ${y}`; }
         closePicker(); if (Picker.targetId === 'rekap-month-picker') updateRekap(); if (Picker.targetId === 'plot-month-filter') updatePlotList();
     }
     function renderKalender() {
@@ -1106,11 +1012,7 @@
         }
     }
 
-    function terapkanVersi() {
-        const elVersi = document.getElementById('app-version-display');
-        if (elVersi) elVersi.innerText = `VERSI 1.01 (BASIC)`;
-    }
-
+    function terapkanVersi() { const elVersi = document.getElementById('app-version-display'); if (elVersi) elVersi.innerText = `VERSI 1.01 (BASIC)`; }
     window.addEventListener('DOMContentLoaded', () => { muatDatabase(); inisiasiKalenderAwal(); updatePlotList(); updateRekap(); jalankanJam(); terapkanVersi(); });
 </script>
 </body>
